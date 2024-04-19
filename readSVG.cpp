@@ -23,6 +23,6 @@ namespace svg
         dimensions.y = xml_elem->IntAttribute("height");
         
         // TODO complete code -->
-        
+        dwadwad
     }
 }
