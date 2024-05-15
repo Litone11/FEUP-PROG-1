@@ -1,10 +1,12 @@
 //! @file shape.hpp
-#ifndef __svg_SVGElements_hpp__
-#define __svg_SVGElements_hpp__
+#ifndef _svg_SVGElements_hpp_
+#define _svg_SVGElements_hpp_
 
 #include "Color.hpp"
 #include "Point.hpp"
 #include "PNGImage.hpp"
+#include <vector>
+#include <string>
 
 namespace svg
 {
@@ -28,102 +30,78 @@ namespace svg
                  const std::string &png_file);
 
 
-
-
-
-    class Ellipse : public SVGElement
-    {
+    // ELLIPSE CLASS
+    class Ellipse : public SVGElement {
     public:
         Ellipse(const Color &fill, const Point &center, const Point &radius);
         void draw(PNGImage &img) const override;
 
-    private:
-        Color fill;
-        Point center;
-        Point radius;
+
+    protected:
+    const Point& getCenter() const { return center; }
+    const Point& getRadius() const { return radius; }
+    Color fill;
+    Point center;
+    Point radius;
+
+    };
+
+    // CIRCLE CLASS
+    class Circle : public Ellipse {
+        public:
+            Circle(float cx, float cy, float radius, const Color &fillColor);
+            void draw(PNGImage &img) const override;
     };
 
 
-
-
-
-    class Circle : public SVGElement
-    {
+    // LINE CLASS
+    class Line : public SVGElement {
     public:
-        Circle(const Color &fill, const Point &center, const double &radius);
-        void draw(PNGImage &img) const override;
+        Line(const Point& start, const Point& end, const Color& strokeColor);
+        void draw(PNGImage& img) const override;
 
-    private:
-        Color fill;
-        Point center;
-        double radius;
-    };
-
-
-
-
-
-
-     class Line : public SVGElement
-    {
-    public:
-        Line(const Color &stroke, const Point &start, const Point &end);
-        void draw(PNGImage &img) const override;
-
-    private:
-        Color stroke;
+    protected:
         Point start;
         Point end;
-        
+        Color strokeColor;
     };
 
-
-
-
-
-    class Polyline : public SVGElement
-    {
-    public:
-        Polyline(const Color &stroke, const std::vector<Point>& points);
-        void draw(PNGImage &img) const override;
-
+    class Polyline : public Line {
     private:
-        Color stroke;
+        std::vector<Point> points;        
+        public:
+        Polyline(const std::vector<Point>& points, const Color& strokeColor);
+        void draw(PNGImage& img) const override;
+    };
+    // POLYGONE CLASS
+    class Polygon : public SVGElement {
+    public:
+        Polygon(const std::vector<Point>& points, const Color& fillColor);
+        void draw(PNGImage& img) const override;
+    
+    protected:
         std::vector<Point> points;
-        
+        Color fillColor;
+    };
+
+    // RECTANGLE CLASS
+    class Rectangle : public Polygon {
+    public:
+        Rectangle(const Point& topLeft, const Point& bottomRight, const Color& fillColor);
+        void draw(PNGImage& img) const override;
     };
 
 
-
-
-
-
-    class Polygon : public SVGElement
-    {
+    // GROUP CLASS
+    class Group : public SVGElement {
     public:
-        Polygon(const Color &fill, const std::vector<Point>& points);
-        void draw(PNGImage &img) const override;
+        void addElement(SVGElement* element);
+        void draw(PNGImage& img) const override;
 
     private:
-        Color fill;
-        std::vector<Point> points;
-        
+        std::vector<SVGElement*> elements;
     };
 
 
-
-
-    class Rectangle : public SVGElement
-    {
-    public:
-        Rectangle(const Color &fill, const Point &top_left, const double width, const double height)h;
-        void draw(PNGImage &img) const override;
-
-    private:
-        Color fill;
-        Point top_left;
-        double width, height;
-        
-    };
 }
 #endif
