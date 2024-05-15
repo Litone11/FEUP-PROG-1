@@ -27,6 +27,10 @@ namespace svg
     void convert(const std::string &svg_file,
                  const std::string &png_file);
 
+
+
+
+
     class Ellipse : public SVGElement
     {
     public:
@@ -37,6 +41,89 @@ namespace svg
         Color fill;
         Point center;
         Point radius;
+    };
+
+
+
+
+
+    class Circle : public SVGElement
+    {
+    public:
+        Circle(const Color &fill, const Point &center, const double &radius);
+        void draw(PNGImage &img) const override;
+
+    private:
+        Color fill;
+        Point center;
+        double radius;
+    };
+
+
+
+
+
+
+     class Line : public SVGElement
+    {
+    public:
+        Line(const Color &stroke, const Point &start, const Point &end);
+        void draw(PNGImage &img) const override;
+
+    private:
+        Color stroke;
+        Point start;
+        Point end;
+        
+    };
+
+
+
+
+
+    class Polyline : public SVGElement
+    {
+    public:
+        Polyline(const Color &stroke, const std::vector<Point>& points);
+        void draw(PNGImage &img) const override;
+
+    private:
+        Color stroke;
+        std::vector<Point> points;
+        
+    };
+
+
+
+
+
+
+    class Polygon : public SVGElement
+    {
+    public:
+        Polygon(const Color &fill, const std::vector<Point>& points);
+        void draw(PNGImage &img) const override;
+
+    private:
+        Color fill;
+        std::vector<Point> points;
+        
+    };
+
+
+
+
+    class Rectangle : public SVGElement
+    {
+    public:
+        Rectangle(const Color &fill, const Point &top_left, const double width, const double height)h;
+        void draw(PNGImage &img) const override;
+
+    private:
+        Color fill;
+        Point top_left;
+        double width, height;
+        
     };
 }
 #endif

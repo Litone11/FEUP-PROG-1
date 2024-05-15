@@ -6,7 +6,23 @@ namespace svg
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    // Ellipse (initial code provided)
+
+
+    //Circle code
+    Circle::Circle(const Color &fill,
+                    const Point &center,
+                    const Point &radius)
+        : fill(fill), center(center), radius(radius)
+    {
+    }
+
+    void Cicle::draw(PNGImage &img) const
+    {
+        img.draw_Circle(center, radius, fill);
+    }
+
+
+
     Ellipse::Ellipse(const Color &fill,
                      const Point &center,
                      const Point &radius)
@@ -17,7 +33,52 @@ namespace svg
     {
         img.draw_ellipse(center, radius, fill);
     }
-    // @todo provide the implementation of SVGElement derived classes
-    // HERE -->
+
+
+
+    // define a corresponding class in SVGElements.hpp / SVGElements.cpp
+
+    PolyLine::PolyLine(const Color &stroke,
+    //points: a comma-separated sequence of XY coordinates;
+    )
+    {
+    }
+
+    //polyline void funct
+    void PolyLine::draw(PNGImage &img) const
+    {
+        img.draw_PolyLine(, stroke);
+    }
+
+
+    Line::Line(const Color &stroke,
+                const Point &start,
+                const Point &end
+                )
+                :stroke(stroke), start(start), end(end)
+    void Line::draw(PNGImage &img) const
+    {
+        img.draw_Line(start, end, stroke);
+    }
+
+
+
+    //line void funct
+
+    Polygon::Polygon(const Color &fill,
+
+    )
+
+    //polygon void funct
+
+
+    Rect::Rect(
+
+    )
+
+    //rect void function
+
+
+
 
 }
