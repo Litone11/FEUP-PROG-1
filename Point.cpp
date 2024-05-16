@@ -10,7 +10,7 @@ namespace svg
     }
 
     Point Point::rotate(const Point &origin, int degrees) const
-    {
+    {   
         double angle = M_PI * degrees / 180.0;
         double dx = x - origin.x;
         double dy = y - origin.y;

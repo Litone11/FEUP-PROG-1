@@ -15,6 +15,7 @@ namespace svg
         SVGElement();
         virtual ~SVGElement();
         virtual void draw(PNGImage &img) const = 0;
+        virtual Point transform(const std::string &t_name, const Point &origin, int mul = 0) const;
     };
 
     // Declaration of namespace functions
@@ -34,6 +35,7 @@ namespace svg
         Ellipse(const Color &fill, const Point &center, const Point &radius);
     // Draw funct
         void draw(PNGImage &img) const override;
+        Point transform(const std::string &t_name, const Point &origin, int mul = 0) const override;
 
     private:
         // Ellipse's color
@@ -52,6 +54,7 @@ namespace svg
         PolyLine(const Color &stroke, const std::vector<Point>& points);
         // Draw funct
         void draw(PNGImage &img) const override;
+        Point transform(const std::string &t_name, const Point &origin, int mul = 0) const override;
 
     private:
         // PolyLine's color
@@ -70,6 +73,7 @@ namespace svg
         Polygon(const Color &fill, const std::vector<Point>& points);
         // Draw funct
         void draw(PNGImage &img) const override;
+        Point transform(const std::string &t_name, const Point &origin, int mul = 0) const override;
 
     private:
         // Polygon's color
@@ -87,11 +91,12 @@ namespace svg
         Group(const std::vector<SVGElement *>& elements);
         // Draw funct
         void draw(PNGImage &img) const override;
+        Point transform(const std::string &t_name, const Point &origin, int mul = 0) const override;
 
         private:
         //Elements that belong to the group are in this vector
         std::vector<SVGElement *> elements;
-    }
+    };
 
 
 }
