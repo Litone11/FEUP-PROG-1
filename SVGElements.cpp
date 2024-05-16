@@ -1,8 +1,4 @@
 #include "SVGElements.hpp"
-#include "Point.hpp"
-#include "Color.hpp"
-#include "PNGImage.hpp"
-
 
 namespace svg
 {
@@ -10,76 +6,52 @@ namespace svg
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    // Ellipse (initial code provided)
+
     Ellipse::Ellipse(const Color &fill,
                      const Point &center,
                      const Point &radius)
         : fill(fill), center(center), radius(radius)
     {
     }
+
     void Ellipse::draw(PNGImage &img) const
     {
         img.draw_ellipse(center, radius, fill);
     }
 
-    // Circle class
-   Circle::Circle(float cx, float cy, float radius, const Color &fillColor)
-    : Ellipse(fillColor, Point(static_cast<int>(cx), static_cast<int>(cy)), Point(static_cast<int>(radius), static_cast<int>(radius))) {
+
+
+    Polyline::Polyline(const Color &stroke, 
+                       const std::vector<Point>& points)
+        : stroke(stroke), points(points)
+    {
     }
 
-    void Circle::draw(PNGImage& img) const {
-        img.draw_ellipse(center, radius, fill);
-    }
-
-    // Line
-    Line::Line(const Point& start, const Point& end, const Color& strokeColor)
-        : start(start), end(end), strokeColor(strokeColor) {}
-
-    void Line::draw(PNGImage& img) const {
-        img.draw_line(start, end, strokeColor);
-    }
-
-    // Polyline
-    Polyline::Polyline(const std::vector<Point>& points, const Color& strokeColor)
-            : Line(points.front(), points.back(), strokeColor), points(points) {}
-
-    void Polyline::draw(PNGImage& img) const {
-        for (size_t i = 0; i < points.size() - 1; ++i) {
-            img.draw_line(points[i], points[i + 1], strokeColor);
-        }
+    void PolyLine::draw(PNGImage &img) const
+    {
+        img.draw_PolyLine(, stroke);
     }
 
 
-    // Polygon
-    Polygon::Polygon(const std::vector<Point>& points, const Color& fillColor)
-        : points(points), fillColor(fillColor) {}
 
-    void Polygon::draw(PNGImage& img) const {
-        img.draw_polygon(points, fillColor);
+
+
+
+    Polygon::Polygon(const Color &fill, 
+                     const std::vector<Point>& points,)
+
+
+        : fill(fill), points(points)
+    {
     }
-    
 
-
-    Rectangle::Rectangle(const Point& topLeft, const Point& bottomRight, const Color& fillColor)
-        : Polygon({
-            topLeft,
-            Point(bottomRight.x, topLeft.y),
-            bottomRight,
-            Point(topLeft.x, bottomRight.y)
-        }, fillColor) {}
-
-    void Rectangle::draw(PNGImage& img) const {
-        img.draw_polygon(points, fillColor);
+    void Polygon::draw(PNGImage &img) const
+    {
+        img.draw_Polygon(points, fill);
     }
 
 
-    void Group::addElement(SVGElement* element) {
-        elements.push_back(element);
-    }
 
-    void Group::draw(PNGImage& img) const {
-        for (const auto& element : elements) {
-            element->draw(img);
-        }
-    }
+
+
 }
