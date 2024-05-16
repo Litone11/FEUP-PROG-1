@@ -7,28 +7,37 @@ namespace svg
     SVGElement::~SVGElement() {}
     
 
-    Ellipse::Ellipse(const Color &fill,
-                     const Point &center,
-                     const Point &radius)
+    Ellipse::Ellipse(const Color &fill, const Point &center, const Point &radius)
         : fill(fill), center(center), radius(radius)
     {
-    
     }
-
-    void Ellipse::draw(PNGImage &img) const
-    {
-        img.draw_ellipse(center, radius, fill);
-    }
-
-    Point Ellipse::transform(const std::string &t_name, const Point &origin, int mul = 0) const{
+    Point Ellipse::transform(const std::string &t_name, const Point &origin, int mul = 0) const
         if(t_name == "translate"){
             return center.translate(origin);
         }
-       
+    Point Ellipse::rotate(const std::string &t_name, const Point &origin, int radius) const{
+        if(t_name == "rotate"){
+            return center.rotate(origin);
+    }
+    Point Ellipse::scale(const std::string &t_name, const Point &origin, int mul = 0, const int &val){
+        if(t_name == "scale"){
+            return center.scale(origin);
+        }
     }
 
-    PolyLine::PolyLine(const Color &stroke, 
-                       const std::vector<Point>& points)
+    void Ellipse::draw(PNGImage &img, transform) const
+    {
+    }
+
+
+
+    }
+
+
+
+
+
+    Polyline::Polyline(const Color &stroke, const std::vector<Point>& points)
         : stroke(stroke), points(points)
     {
     }
@@ -38,15 +47,7 @@ namespace svg
         img.draw_PolyLine(, stroke);
     }
 
-
-
-
-
-
-    Polygon::Polygon(const Color &fill, 
-                     const std::vector<Point>& points,)
-
-
+    Polygon::Polygon(const Color &fill, const std::vector<Point>& points)
         : fill(fill), points(points)
     {
     }
@@ -56,9 +57,11 @@ namespace svg
         img.draw_Polygon(points, fill);
     }
 
-
+    Point Polygon::transform(const std::string &t_name, const std::vector<Point>& points, int mul = 0) const
+    if(t_name == "translate"){
+        
 
 
 
 }
-
+}
