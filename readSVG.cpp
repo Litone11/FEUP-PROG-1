@@ -76,6 +76,28 @@ namespace svg
             }
             
         }
+        else if(strcmp(elem->Name(), "use") == 0){
+            string href = elem->Attribute("href");
+            href = href.substr(1); // remove the '#' character
+            SVGElement *original = nullptr;
+            for(SVGElement *e : svg_elements){
+                if(e->id == href){
+                original = e;
+                break;
+                }
+            }
+            if(original!= nullptr){
+            // create a new element with the same properties as the original
+            SVGElement *copy = original->clone();
+            // apply any transformations defined in the 'transform' attribute
+            string transform = elem->Attribute("transform");
+            if(!transform.empty()){
+            // parse the transform attribute and apply the transformations to the copy
+            //...
+            }
+            svg_elements.push_back(copy);
+            }
+        }
 
     }
 
@@ -100,7 +122,6 @@ namespace svg
         
 
     }
-
 
     
 }
