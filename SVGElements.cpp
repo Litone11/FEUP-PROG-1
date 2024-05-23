@@ -11,7 +11,8 @@ namespace svg
         : fill(fill), center(center), radius(radius)
     {
     }
-    Point Ellipse::transform(const std::string &t_name, const Point &origin, int &mul = NULL) const
+    Point Ellipse::transform(const std::string &t_name, const Point &origin, const int &mul) const
+    {
         if(t_name == "translate"){
             return center.translate(origin);
         }
@@ -20,7 +21,7 @@ namespace svg
             return center.rotate(origin, mul);
     
         }
-        else if(t_name == "scale"){
+        else {
             return center.scale(origin, mul);
         }
     }
@@ -38,44 +39,47 @@ namespace svg
 
 
 
-    Polyline::Polyline(const Color &stroke, const std::vector<Point>& points)
+    PolyLine::PolyLine(const Color &stroke, const std::vector<Point>& points)
         : stroke(stroke), points(points)
     {
     }
 
 
 
-    std::vector<Point> Polyline::transform(const std::string &t_name, const std::vector<Point>& points, int &mul = NULL) const
-
+    std::vector<Point> PolyLine::transform(const std::string &t_name, const Point &origin, const int &mul) const
+    {
    
-    if(t_name == "translate"){
-        std::vector<Point> new_points;
-        for(auto p : points){
-            new_points.push_back(p.translate(origin));
-            }
-    return new_points;
+        if(t_name == "translate"){
+            std::vector<Point> new_points;
+            for(auto p : points){
+                new_points.push_back(p.translate(origin));
+                }
+            return new_points;
+        }
 
-    else if (t_name == "rotate"){
-        std::vector<Point> new_points;
-        for(auto p : points){
-            new_points.push_back(p.rotate(origin, mul));
-            
-            } 
-        return new_points; 
+        else if (t_name == "rotate"){
+            std::vector<Point> new_points;
+            for(auto p : points){
+                new_points.push_back(p.rotate(origin, mul));
+                
+                } 
+            return new_points; 
+        }
 
-    else if(t_name == "scale"){
-        std::vector<Point> new_points;
-        for(auto p : points){
-            new_points.push_back(p.scale(origin, mul));
-            }
-        return new_points;
-    }
+        else{
+            std::vector<Point> new_points;
+            for(auto p : points){
+                new_points.push_back(p.scale(origin, mul));
+                }
+            return new_points;
+        }
+
     }
 
 
     void PolyLine::draw(PNGImage &img) const
     {
-        for(int i = 0; i< points.size() - 1; i++)
+        for(size_t i = 0; i< points.size() - 1; i++)
             img.draw_line(points.at(i), points.at(i+1), stroke);
     }
 
@@ -90,7 +94,7 @@ namespace svg
     {
     }
 
-    std::vector<Point> Polygon::transform(const std::string &t_name, const std::vector<Point>& points, int mul = 0) const{
+    std::vector<Point> Polygon::transform(const std::string &t_name, const Point &origin, const int &mul) const{
     if(t_name == "translate"){
         std::vector<Point> new_points;
         
@@ -105,33 +109,61 @@ namespace svg
         else if(t_name == "rotate"){
         std::vector<Point> new_points;
         for(auto p : points){
-            new_points.push_back(p.rotate(origin));
+            new_points.push_back(p.rotate(origin, mul));
         }
         return new_points;
     }
 
 
-        else if(t_name == "scale"){
-        std::vector<Point> new_points;
-        for(auto p : points){
-            new_points.push_back(p.scale(origin));
+        else{
+            std::vector<Point> new_points;
+            for(auto p : points){
+                new_points.push_back(p.scale(origin, mul));
+            }
+            return new_points;
         }
-        return new_points;
-    }
     }
 
 
         void Polygon::draw(PNGImage &img) const
     {
-        if(new_points == NULL){
-            img.draw_polygon(points, fill);
-        }
-        else{
-            img.draw_polygon(new_points, fill);
-        }
+        img.draw_polygon(points, fill);
+    
     }
 
+    
+        void Group::draw(PNGImage &img) const
+{
+    for (const auto &element : elements)
+    {
+        element->draw(img);
+    }
+}
+    
+
+
+    Group::Group(const std::vector<SVGElement *> &elements)
+    : elements(elements)
+{
+}
+    void Group::transform(const std::string &t_name, const Point &origin, const int &mul) const
+{
+    for (const auto &element : elements)
+    {
+        if (Ellipse *ellipse = dynamic_cast<Ellipse*>(element))
+        {
+            ellipse->transform(t_name, origin, mul);
+        }
+        else if (PolyLine *polyline = dynamic_cast<PolyLine*>(element))
+        {
+            polyline->transform(t_name, origin, mul);
+        }
+        else if (Polygon *polygon = dynamic_cast<Polygon*>(element))
+        {
+            polygon->transform(t_name, origin, mul);
+        }
+    }
+}
 
 
 }
-

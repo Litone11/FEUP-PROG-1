@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <sstream>
 #include "SVGElements.hpp"
@@ -11,20 +10,53 @@ namespace svg
 {
     void readElements(XMLElement* elem, vector<SVGElement *>& svg_elements){
         vector<Point> points;
+        string t_name;
+        int mul;
+        bool flag1 = false;
+        Point origin = {0,0};
+    
+        if(elem->Attribute("transform") != NULL){
+            string transform = elem->Attribute("transform");
+            t_name = transform.substr(0, transform.find_first_of("("));
+            mul = stoi(transform.substr(transform.find_first_of("(") + 1, transform.find_first_of(")")));
+            flag1 = true;
+            
+        }
+
+        if(elem->Attribute("transform-origin") != NULL){
+            string origin_str = elem->Attribute("transform-origin");
+            int x = stoi(origin_str.substr(0, origin_str.find_first_of(" ")));
+            int y = stoi(origin_str.substr(origin_str.find_first_of(" ")+1));
+            origin = {x, y};
+            
+        }
         if(strcmp(elem->Name(), "circle") == 0){
-            SVGElement *circle = new Ellipse(Color(parse_color(elem->Attribute("fill"))),{elem->IntAttribute("cx"), elem->IntAttribute("cy")}, {elem->IntAttribute("r"), elem->IntAttribute("r")});
+            Ellipse *circle = new Ellipse(Color(parse_color(elem->Attribute("fill"))),{elem->IntAttribute("cx"), elem->IntAttribute("cy")}, {elem->IntAttribute("r"), elem->IntAttribute("r")});
+            
+            
+            if (flag1){
+                circle->setCenter(circle->transform(t_name, origin, mul));
+            }  
             svg_elements.push_back(circle);
         }
 
         else if(strcmp(elem->Name(), "ellipse") == 0){
-            SVGElement *ellipse = new Ellipse(Color(parse_color(elem->Attribute("fill"))),{elem->IntAttribute("cx"), elem->IntAttribute("cy")}, {elem->IntAttribute("rx"), elem->IntAttribute("ry")});
+            Ellipse *ellipse = new Ellipse(Color(parse_color(elem->Attribute("fill"))),{elem->IntAttribute("cx"), elem->IntAttribute("cy")}, {elem->IntAttribute("rx"), elem->IntAttribute("ry")});
+            
+            if (flag1){
+                ellipse->setCenter(ellipse->transform(t_name, origin, mul));
+            }  
             svg_elements.push_back(ellipse);
         }
 
         else if(strcmp(elem->Name(), "line") == 0){
             points.push_back({(elem->IntAttribute("x1"),elem->IntAttribute("y1"))});
             points.push_back({elem->IntAttribute("x2"),elem->IntAttribute("y2")});
-            SVGElement *line = new PolyLine(Color(parse_color(elem->Attribute("stroke"))), points);
+            PolyLine *line = new PolyLine(Color(parse_color(elem->Attribute("stroke"))), points);
+            
+            if (flag1){
+                line->setPoints(line->transform(t_name, origin, mul));
+            }  
             svg_elements.push_back(line);
             points.clear();
         }
@@ -33,11 +65,14 @@ namespace svg
             istringstream iss(elem->Attribute("points"));
             for(string l; iss >> l;)
             {
-                int x = stoi(l.substr(0,l.find_first_of(",") - 1));
+                int x = stoi(l.substr(0,l.find_first_of(",")));
                 int y = stoi(l.substr(l.find_first_of(",") + 1));
                 points.push_back({x,y});
             }
-            SVGElement *polyline = new PolyLine(Color(parse_color(elem->Attribute("stroke"))), points);
+            PolyLine *polyline = new PolyLine(Color(parse_color(elem->Attribute("stroke"))), points);
+            if (flag1){
+                polyline->setPoints(polyline->transform(t_name, origin, mul));
+            }  
             svg_elements.push_back(polyline);
             points.clear();
         }
@@ -46,11 +81,14 @@ namespace svg
             istringstream iss(elem->Attribute("points"));
             for(string l; iss >> l;)
             {
-                int x = stoi(l.substr(0,l.find_first_of(",") - 1));
+                int x = stoi(l.substr(0,l.find_first_of(",")));
                 int y = stoi(l.substr(l.find_first_of(",") + 1));
                 points.push_back({x,y});
             }
-            SVGElement *polygon = new Polygon(Color(parse_color(elem->Attribute("fill"))), points);
+            Polygon *polygon = new Polygon(Color(parse_color(elem->Attribute("fill"))), points);
+            if (flag1){
+                polygon->setPoints(polygon->transform(t_name, origin, mul));
+            }  
             svg_elements.push_back(polygon);
             points.clear();
         }
@@ -64,39 +102,28 @@ namespace svg
             points.push_back(tr);
             points.push_back(br);
         
-            SVGElement *polygon = new Polygon(Color(parse_color(elem->Attribute("fill"))), points);
-            svg_elements.push_back(polygon);
+            Polygon *rect = new Polygon(Color(parse_color(elem->Attribute("fill"))), points);
+            if (flag1){
+                rect->setPoints(rect->transform(t_name, origin, mul));
+            }  
+            svg_elements.push_back(rect);
             points.clear();
         }
 
         else if(strcmp(elem->Name(), "g") == 0){
             for (XMLElement *child = elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
-            {
-                readElements(child, svg_elements);
+            {   
+                
+                vector<SVGElement *>svg_elements_g;
+                readElements(child, svg_elements_g);
+                Group *group = new Group(svg_elements_g);
+                svg_elements.push_back(group);
+                svg_elements_g.~vector();
+
+                
+                
             }
             
-        }
-        else if(strcmp(elem->Name(), "use") == 0){
-            string href = elem->Attribute("href");
-            href = href.substr(1); // remove the '#' character
-            SVGElement *original = nullptr;
-            for(SVGElement *e : svg_elements){
-                if(e->id == href){
-                original = e;
-                break;
-                }
-            }
-            if(original!= nullptr){
-            // create a new element with the same properties as the original
-            SVGElement *copy = original->clone();
-            // apply any transformations defined in the 'transform' attribute
-            string transform = elem->Attribute("transform");
-            if(!transform.empty()){
-            // parse the transform attribute and apply the transformations to the copy
-            //...
-            }
-            svg_elements.push_back(copy);
-            }
         }
 
     }
@@ -122,6 +149,7 @@ namespace svg
         
 
     }
+
 
     
 }
